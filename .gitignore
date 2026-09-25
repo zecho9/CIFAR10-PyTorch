@@ -1,0 +1,22 @@
+# Dataset
+data/
+
+# VS Code
+.vscode/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Model weights
+*.pth
+*.pt
+
+# Training outputs
+checkpoints/
+runs/
+
+# System files
+.DS_Store
+Thumbs.db
