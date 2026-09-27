@@ -5,11 +5,12 @@ import torch.nn as nn
 import torch.optim as optim
 
 from models.cnn import SimpleCNN
+from models.resnet import get_resnet18
 from utils.dataset import get_dataloaders
 
 
 # =========================
-# 1. 选择运行设备
+# 1. 设备
 # =========================
 
 device = torch.device(
@@ -20,7 +21,7 @@ print("使用设备：", device)
 
 
 # =========================
-# 2. 加载数据
+# 2. 数据
 # =========================
 
 train_loader, val_loader, test_loader = get_dataloaders(
@@ -30,21 +31,48 @@ train_loader, val_loader, test_loader = get_dataloaders(
 
 
 # =========================
-# 3. 创建模型
+# 3. 模型
 # =========================
 
-model = SimpleCNN().to(device)
+model_name = "resnet18"
+
+
+if model_name == "simple_cnn":
+
+    model = SimpleCNN()
+
+
+elif model_name == "resnet18":
+
+    model = get_resnet18(
+        num_classes=10
+    )
+
+
+else:
+
+    raise ValueError(
+        f"未知模型：{model_name}"
+    )
+
+
+model = model.to(device)
+
+
+print(
+    f"当前模型：{model_name}"
+)
 
 
 # =========================
-# 4. 损失函数
+# 4. Loss
 # =========================
 
 criterion = nn.CrossEntropyLoss()
 
 
 # =========================
-# 5. 优化器
+# 5. Optimizer
 # =========================
 
 optimizer = optim.Adam(
@@ -54,41 +82,29 @@ optimizer = optim.Adam(
 
 
 # =========================
-# 6. Learning Rate Scheduler
+# 6. Scheduler
 # =========================
 
 scheduler = optim.lr_scheduler.ReduceLROnPlateau(
     optimizer,
-
-    # 监控的指标越小越好
     mode="min",
-
-    # 每次降低为原来的 0.5
     factor=0.5,
-
-    # 验证指标若连续若干轮没有明显改善，
-    # 就降低学习率
     patience=2,
-
-    # 至少改善 0.001 才算明显改善
     threshold=0.001,
-
     threshold_mode="abs",
-
-    # 学习率最低不低于这个值
     min_lr=1e-6
 )
 
 
 # =========================
-# 7. 训练配置
+# 7. Training Config
 # =========================
 
 num_epochs = 30
 
 
 # =========================
-# 8. Checkpoint 配置
+# 8. Checkpoint
 # =========================
 
 best_val_loss = float("inf")
@@ -104,12 +120,12 @@ os.makedirs(
 
 checkpoint_path = os.path.join(
     checkpoint_dir,
-    "best_model.pth"
+    f"best_{model_name}.pth"
 )
 
 
 # =========================
-# 9. Early Stopping 配置
+# 9. Early Stopping
 # =========================
 
 patience = 5
@@ -117,7 +133,6 @@ patience = 5
 early_stop_counter = 0
 
 min_delta = 0.001
-
 
 # =========================
 # 10. Training Loop
