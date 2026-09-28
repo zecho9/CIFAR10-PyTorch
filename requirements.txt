@@ -1,11 +1,9 @@
-matplotlib==3.9.4
-matplotlib-inline==0.2.2
-numpy==2.0.2
-scikit-learn==1.6.1
-tensorboard==2.21.0
-tensorboard-data-server==0.7.2
+
+--extra-index-url https://download.pytorch.org/whl/cu126
+
 torch==2.8.0+cu126
 torchvision==0.23.0+cu126
-
-Python 3.9.25
-torch 2.8.0+cu126
+numpy==2.0.2
+scikit-learn==1.6.1
+matplotlib==3.9.4
+tensorboard==2.21.0
