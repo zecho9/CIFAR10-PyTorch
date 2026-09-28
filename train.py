@@ -7,7 +7,8 @@ import torch.optim as optim
 from models.cnn import SimpleCNN
 from models.resnet import get_resnet18
 from utils.dataset import get_dataloaders
-
+from datetime import datetime
+from torch.utils.tensorboard import SummaryWriter
 
 # =========================
 # 1. 设备
@@ -36,6 +37,21 @@ train_loader, val_loader, test_loader = get_dataloaders(
 
 model_name = "resnet18"
 
+run_name = (
+    f"{model_name}_"
+    f"{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+)
+
+writer = SummaryWriter(
+    log_dir=os.path.join(
+        "runs",
+        run_name
+    )
+)
+
+print(
+    f"TensorBoard日志：runs/{run_name}"
+)
 
 if model_name == "simple_cnn":
 
@@ -329,6 +345,36 @@ for epoch in range(num_epochs):
     # ==================================================
 
     current_lr = optimizer.param_groups[0]["lr"]
+    
+    writer.add_scalar(
+    "Loss/Train",
+    train_loss,
+    epoch + 1
+    )
+
+    writer.add_scalar(
+        "Loss/Validation",
+        val_loss,
+        epoch + 1
+    )
+
+    writer.add_scalar(
+        "Accuracy/Train",
+        train_acc,
+        epoch + 1
+    )
+
+    writer.add_scalar(
+        "Accuracy/Validation",
+        val_acc,
+        epoch + 1
+    )
+
+    writer.add_scalar(
+        "Learning_Rate",
+        current_lr,
+        epoch + 1
+    )
 
 
     # ==================================================
@@ -457,7 +503,7 @@ for epoch in range(num_epochs):
             )
 
             break
-
+writer.close()
 
 # =========================
 # 13. 训练结束
